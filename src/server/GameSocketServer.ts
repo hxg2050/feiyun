@@ -17,8 +17,6 @@ export class GameSocketServer {
 
     clientIndex: number = 0;
 
-    actions: Record<string, any> = {};
-
     wss: WebSocketServer;
 
     /**
