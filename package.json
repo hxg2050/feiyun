@@ -1,8 +1,8 @@
 {
-  "name": "feiyu",
+  "name": "feiyun",
   "private": false,
   "version": "0.0.1",
-  "repository": "https://github.com/hxg2050/feiyu.git",
+  "repository": "https://github.com/hxg2050/feiyun.git",
   "license": "MIT",
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.esm.js",
