@@ -21,7 +21,7 @@ export const Handler = (path?: string): ClassDecorator => {
  * @param path 路径
  * @returns 
  */
-export const Method = (path: string): ParameterDecorator => {
+export const Method = (path: string): MethodDecorator => {
     return (target, key, descriptor: any) => {
         Reflect.defineMetadata(METHOD_METADATA, path, descriptor.value);
     }
