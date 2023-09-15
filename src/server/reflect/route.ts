@@ -1,8 +1,9 @@
 import "reflect-metadata";
 
-const METHOD_METADATA = 'method';
 const PATH_METADATA = 'path';
+const METHOD_METADATA = 'method';
 const PARAM_METADATA = 'param';
+const PARAM_VALIDATE_METADATA = 'param_validate'
 
 /**
  * 类装饰
@@ -38,6 +39,7 @@ export const Param = (name: string, checker?: (val: any) => void): ParameterDeco
         if (!key) {
             return;
         }
+
         const param = Reflect.get(target, key);
         let params = Reflect.getMetadata(PARAM_METADATA, param);
         if (!params) {
@@ -47,6 +49,22 @@ export const Param = (name: string, checker?: (val: any) => void): ParameterDeco
         Reflect.defineMetadata(PARAM_METADATA, params, param);
     }
 }
+
+/**
+ * 声明参数需要进行校验，并用目标类型重新实例
+ * @param target 
+ * @param key 
+ * @param index 
+ */
+export const ParamType: ParameterDecorator = (target, key, index) => {
+    if (!key) {
+        return;
+    }
+    const types = Reflect.getMetadata("design:paramtypes", target, key);
+    types[index]
+    Reflect.defineMetadata(PARAM_VALIDATE_METADATA, types[index], Reflect.get(target, key));
+}
+
 
 export const mapRoute = (handlers: any[]) => {
 
@@ -68,7 +86,10 @@ export const mapRoute = (handlers: any[]) => {
         methods.forEach(methodName => {
             const method = Reflect.get(prototype, methodName);
             const path = handlerPathMeta + '/' + Reflect.getMetadata(METHOD_METADATA, method);
-            all.set(path, method.bind(handler));
+            all.set(path, {
+                method: method.bind(handler),
+                validate: Reflect.getMetadata(PARAM_VALIDATE_METADATA, method)
+            });
         })
     }
 

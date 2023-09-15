@@ -15,7 +15,8 @@
     "noImplicitReturns": true,
     "skipLibCheck": true,
     "declaration": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "forceConsistentCasingInFileNames": true,
   },
   "include": ["src"]
 }
