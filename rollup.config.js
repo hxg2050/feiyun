@@ -3,10 +3,10 @@ import { defineConfig } from 'rollup';
 export default defineConfig({
     input: 'src/index.ts',
     output: [{
-        file: 'dist/index.cjs.js',
+        file: 'dist/index.cjs',
         format: 'cjs'
     }, {
-        file: 'dist/index.esm.js',
+        file: 'dist/index.ejs',
         format: 'esm'
     }],
     plugins: [typescript()]
