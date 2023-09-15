@@ -12,7 +12,7 @@ const PARAM_VALIDATE_METADATA = 'param_validate'
  */
 export const Handler = (path?: string): ClassDecorator => {
     return target => {
-        path = typeof path === 'undefined' ? '/' + target.name : path;
+        path = typeof path === 'undefined' ? target.name : path;
         Reflect.defineMetadata(PATH_METADATA, path, target);
     }
 }
@@ -22,9 +22,12 @@ export const Handler = (path?: string): ClassDecorator => {
  * @param path 路径
  * @returns 
  */
-export const Method = (path: string): MethodDecorator => {
+export const Method = (path?: string): MethodDecorator => {
     return (target, key, descriptor: any) => {
-        Reflect.defineMetadata(METHOD_METADATA, path, descriptor.value);
+        if (typeof key === 'string') {
+            path = typeof path === 'undefined' ? key : path;
+            Reflect.defineMetadata(METHOD_METADATA, path, descriptor.value);
+        }
     }
 }
 
