@@ -1,11 +1,11 @@
 {
   "name": "feiyun",
   "private": false,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "repository": "https://github.com/hxg2050/feiyun.git",
   "license": "MIT",
-  "main": "./dist/index.cjs.js",
-  "module": "./dist/index.esm.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.ejs",
   "types": "./dist/index.d.ts",
   "type": "module",
   "files": [
