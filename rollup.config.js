@@ -6,7 +6,7 @@ export default defineConfig({
         file: 'dist/index.cjs',
         format: 'cjs'
     }, {
-        file: 'dist/index.ejs',
+        file: 'dist/index.mjs',
         format: 'esm'
     }],
     plugins: [typescript()]
