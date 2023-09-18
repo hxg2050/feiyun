@@ -28,12 +28,18 @@ export class GameSocketClient {
         });
     }
 
+    // private _connection?: () => void;
+    // onConnection(callback: () => void) {
+    //     this._connection = callback;
+    // }
+
     /**
      * 连接成功
      */
     onOpen() {
         console.log('连接服务器成功');
         this.config.heart && this.ping();
+        this.emitter.emit('connect');
     }
 
     pingTimeout?: number | NodeJS.Timeout;
@@ -62,6 +68,7 @@ export class GameSocketClient {
     onClose() {
         console.log('连接断开');
         clearTimeout(this.pingTimeout);
+        this.emitter.emit('disconnect');
     }
 
     /**

@@ -1,6 +1,7 @@
 import WebSocket, { WebSocketServer } from "ws";
 import { IncomingMessage } from 'http';
 import { GameSocket } from "./GameSocket";
+import { mapRoute } from "./reflect/route";
 
 type Handler = (msg: any, client: GameSocket) => Promise<any> | any;
 
@@ -157,4 +158,19 @@ export class GameSocketServer {
         // console.log('reply', data);
         this.send(socket, id, data);
     }
+
+    isDebug = false;
+
+    doc?: string;
+
+    debug(isDebug: boolean, config: {
+        doc?: string
+    }) {
+        this.isDebug = isDebug;
+        this.doc = config.doc;
+    }
+
+    // addHandler(allHandler: any[]) {
+    //     const maps = mapRoute(allHandler);
+    // }
 }
