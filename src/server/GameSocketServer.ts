@@ -87,6 +87,7 @@ export class GameSocketServer {
                 this.clientsFromUid.delete(client.uid);
             }
             clearTimeout(timeout);
+            this.closeHandler && this.closeHandler(client);
         })
     }
 
@@ -110,6 +111,11 @@ export class GameSocketServer {
         } catch (e) {
             console.error(e);
         }
+    }
+
+    private closeHandler?: (client: GameSocket) => void;
+    onClose(callback: (client: GameSocket) => void) {
+        this.closeHandler = callback;
     }
 
     on(path: string, handler: Handler) {
