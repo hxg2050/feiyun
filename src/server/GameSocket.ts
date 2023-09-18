@@ -15,7 +15,16 @@ export class GameSocket {
         this.data[name] = value;
     }
 
-    uid: number = 0;
+    private _uid?: number | string;
+    get uid() {
+        return this._uid;
+    }
+    set uid(val) {
+        this._uid = val;
+        if (this._uid !== undefined) {
+            this.server.clientsFromUid.set(this._uid, this);
+        }
+    }
 
     /**
      * 发送消息

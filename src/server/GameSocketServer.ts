@@ -19,6 +19,9 @@ export class GameSocketServer {
 
     wss: WebSocketServer;
 
+    clients: Map<number, GameSocket> = new Map;
+    clientsFromUid: Map<string | number, GameSocket> = new Map();
+
     /**
      * 配置
      * @param config 配置
@@ -39,6 +42,7 @@ export class GameSocketServer {
      */
     onConnection(socket: WebSocket, request: IncomingMessage) {
         const client = new GameSocket(++this.clientIndex, this, socket);
+        this.clients.set(this.clientIndex, client);
         let timeout: NodeJS.Timeout;
         const ping = () => {
             if (!this.config.timeout || this.config.timeout < 0) {
@@ -67,6 +71,10 @@ export class GameSocketServer {
 
         socket.on('close', () => {
             console.log('连接断开');
+            this.clients.delete(client.id);
+            if (client.uid !== undefined) {
+                this.clientsFromUid.delete(client.uid);
+            }
             clearTimeout(timeout);
         })
     }
@@ -108,13 +116,28 @@ export class GameSocketServer {
     }
 
     /**
+     * 发送消息到客户端(uid)
+     */
+    sendToUid(uid: string | number, name: string, data: any) {
+        const socket = this.clientsFromUid.get(uid);
+
+        if (!socket) {
+            return false;
+        }
+
+        socket.send(name, data);
+
+        return true;
+    }
+
+    /**
      * 给客户端回复消息
      * @param socket 
      * @param id 
      * @param data 
      */
     reply(socket: WebSocket, id: number, data: any) {
-        console.log('reply', data);
+        // console.log('reply', data);
         this.send(socket, id, data);
     }
 }
