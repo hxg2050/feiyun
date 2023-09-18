@@ -17,7 +17,7 @@ export class GameSocketServer {
 
     clientIndex: number = 0;
 
-    wss: WebSocketServer;
+    wss?: WebSocketServer;
 
     clients: Map<number, GameSocket> = new Map;
     clientsFromUid: Map<string | number, GameSocket> = new Map();
@@ -27,11 +27,22 @@ export class GameSocketServer {
      * @param config 配置
      */
     constructor(private config: ServerConfig) {
-        this.wss = new WebSocketServer(config);
+        // this.wss = new WebSocketServer(config);
+        // this.wss.on('connection', (socket, request) => {
+        //     this.onConnection(socket, request);
+        // });
+        // console.log('ws://127.0.0.1:' + config.port);
+    }
+
+    /**
+     * 开始
+     */
+    start() {
+        this.wss = new WebSocketServer(this.config);
         this.wss.on('connection', (socket, request) => {
             this.onConnection(socket, request);
         });
-        console.log('ws://127.0.0.1:' + config.port);
+        console.log('ws://127.0.0.1:' + this.config.port);
     }
 
     /**
