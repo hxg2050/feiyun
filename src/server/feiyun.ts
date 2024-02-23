@@ -100,7 +100,7 @@ export class Feiyun {
   }
 
   async responseHandler(ctx: Context) {
-    if (ctx.response) {
+    if (ctx.response.data) {
       this.server.reply(ctx.socket.socket, ctx.request.id, ctx.response.data)
     }
   }
