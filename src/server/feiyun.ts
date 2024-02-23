@@ -7,17 +7,17 @@ export interface ApplicationConfig {
   port: number
 }
 
-class Request {
+export class Request {
   id!: number
   url: string = ''
   data: any
 }
 
-class Response {
+export class Response {
   data: any
 }
 
-class Context {
+export class Context {
   socket!: Socket
   request!: Request
   response!: Response
