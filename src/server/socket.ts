@@ -1,8 +1,8 @@
-import type { GameSocketServer } from './GameSocketServer'
+import type { Server } from './server'
 import type { WebSocket } from 'ws'
 
-export class GameSocket {
-  constructor(public id: number, public server: GameSocketServer, public socket: WebSocket) {
+export class Socket {
+  constructor(public id: number, public server: Server, public socket: WebSocket) {
 
   }
 

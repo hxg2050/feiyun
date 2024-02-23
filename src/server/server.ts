@@ -1,9 +1,9 @@
 import type { IncomingMessage } from 'node:http'
 import type WebSocket from 'ws'
 import { WebSocketServer } from 'ws'
-import { GameSocket } from './GameSocket'
+import { Socket } from './socket'
 
-type Handler = (msg: any, client: GameSocket) => Promise<any> | any
+type Handler = (msg: any, client: Socket) => Promise<any> | any
 
 interface ServerConfig {
   port: number
@@ -12,15 +12,15 @@ interface ServerConfig {
 /**
  * 服务器
  */
-export class GameSocketServer {
+export class Server {
   handlers = new Map<string, Handler>()
 
   clientIndex: number = 0
 
   wss?: WebSocketServer
 
-  clients: Map<number, GameSocket> = new Map()
-  clientsFromUid: Map<string | number, GameSocket> = new Map()
+  clients: Map<number, Socket> = new Map()
+  clientsFromUid: Map<string | number, Socket> = new Map()
 
   /**
    * 配置
@@ -42,7 +42,7 @@ export class GameSocketServer {
     this.wss.on('connection', (socket, request) => {
       this.onConnection(socket, request)
     })
-    console.log(`ws://127.0.0.1:${this.config.port}`)
+    // console.log('ws://127.0.0.1:' + this.config.port);
   }
 
   /**
@@ -52,7 +52,7 @@ export class GameSocketServer {
    * @param request
    */
   onConnection(socket: WebSocket, request: IncomingMessage) {
-    const client = new GameSocket(++this.clientIndex, this, socket)
+    const client = new Socket(++this.clientIndex, this, socket)
     this.clients.set(this.clientIndex, client)
     let timeout: NodeJS.Timeout
     const ping = () => {
@@ -73,8 +73,10 @@ export class GameSocketServer {
     socket.on('message', (data) => {
       const str = data.toString()
       // console.log(str);
-      if (this.config.timeout && str === 'ping') {
-        ping()
+      if (str === 'ping') {
+        if (this.config.timeout) {
+          ping()
+        }
         return
       }
       this.onMessage(client, str)
@@ -91,30 +93,33 @@ export class GameSocketServer {
     })
   }
 
-  async onMessage(client: GameSocket, data: string) {
+  async onMessage(client: Socket, data: string) {
     try {
-      const msg = JSON.parse(data)
-      const [rid, route, req]: [number, string, any] = msg
+      this.handlerCallback?.(client, data)
+      // const msg = JSON.parse(data);
+      // const [rid, route, req]: [number, string, any] = msg;
 
-      const handler = this.handlers.get(route)
+      // const handler = this.handlers.get(route);
 
-      if (!handler) {
-        return
-      }
+      // if (!handler) {
+      //     return;
+      // }
 
-      const res = await handler(req, client)
+      // const res = await handler(req, client);
 
-      // 如果有返回值，那么直接回应
-      if (res) {
-        this.reply(client.socket, rid, res)
-      }
+      // // 如果有返回值，那么直接回应
+      // if (res) {
+      //     this.reply(client.socket, rid, res);
+      // }
     } catch (error) {
       console.error(error)
     }
   }
 
-  private closeHandler?: (client: GameSocket) => void
-  onClose(callback: (client: GameSocket) => void) {
+  handlerCallback?: (client: Socket, data: string) => void
+
+  private closeHandler?: (client: Socket) => void
+  onClose(callback: (client: Socket) => void) {
     this.closeHandler = callback
   }
 

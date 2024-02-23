@@ -8,12 +8,15 @@ export interface ClientConfig {
   heart: number
 }
 
-export class GameSocketClient {
+type EventCallback = (...args: any[]) => void
+
+export class FeiyunClient {
   private index: number = 0
 
   private ws: WebSocket
 
   private emitter: EventEmitter = new EventEmitter()
+  private anyKey = Symbol('anyKey')
 
   constructor(private config: ClientConfig) {
     this.ws = new WebSocket(this.config.url)
@@ -62,6 +65,10 @@ export class GameSocketClient {
       this.requestCallback[route](req)
       return
     }
+    this.emitter.emit(this.anyKey, {
+      name: route,
+      data: req,
+    })
     this.emitter.emit(route, req)
   }
 
@@ -83,14 +90,25 @@ export class GameSocketClient {
    * @param name
    * @param callback
    */
-  on(name: string, callback: (...args: any[]) => void) {
-    this.emitter.on(name, callback, this)
+  on(name: string | symbol | EventCallback, callback: EventCallback | any, target: any) {
+    if (typeof name === 'function') {
+      // 监听所有服务器通知消息
+      this.on(this.anyKey, name, callback)
+    } else {
+      this.emitter.on(name, callback, target)
+    }
   }
 
   /**
    * 监听所有服务器通知消息
    */
-  any(callback: (name: string, data?: any) => void) {
+  off(name: string | symbol | EventCallback, callback: EventCallback | any, target: any) {
+    if (typeof name === 'function') {
+      // 监听所有服务器通知消息
+      this.off(this.anyKey, name, callback)
+    } else {
+      this.emitter.off(name, callback, target)
+    }
   }
 
   private requestCallback: Record<number, any> = {}

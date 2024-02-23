@@ -1,15 +1,8 @@
-import { GameSocket } from './server/GameSocket'
-import { GameSocketServer } from './server/GameSocketServer'
-import { GameSocketClient } from './client/GameSocketClient'
-import { Handler, Method, Param, mapRoute } from './server/reflect/route'
+export { FeiyunClient } from './client/FeiyunClient'
+export { GameSocketClient } from './client/GameSocketClient'
 
+export { Feiyun } from './server/feiyun'
+export { GameSocket } from './server/GameSocket'
+export { GameSocketServer } from './server/GameSocketServer'
 
-export {
-    GameSocket,
-    GameSocketServer,
-    GameSocketClient,
-    Handler,
-    Method,
-    Param,
-    mapRoute
-}
+export { ApiDoc, Handler, mapRoute, Method, Param, ParamType } from './server/reflect/route'
