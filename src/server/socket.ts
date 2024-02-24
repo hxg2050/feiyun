@@ -1,8 +1,8 @@
+import { ServerWebSocket } from 'bun'
 import type { Server } from './server'
-import type { WebSocket } from 'ws'
 
 export class Socket {
-  constructor(public id: number, public server: Server, public socket: WebSocket) {
+  constructor(public id: number, public server: Server, public socket: ServerWebSocket) {
 
   }
 
