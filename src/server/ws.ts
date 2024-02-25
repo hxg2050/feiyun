@@ -53,8 +53,13 @@ export const createWebsocketServer = (options: {port?: number, timeout?: number}
                 openHandler && openHandler(ws);
             },
             message(ws, message) {
-                message === 'ping' && options.timeout && ping(ws);
-                messageHandler && messageHandler(ws, message);
+                if (message === 'ping') {
+                  if (options.timeout) {
+                    ping(ws);
+                  }
+                } else{
+                  messageHandler && messageHandler(ws, message);
+                }
             },
             close(ws) {
                 ws.unsubscribe(ALL);
