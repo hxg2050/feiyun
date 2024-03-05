@@ -1,7 +1,7 @@
 {
   "name": "feiyun",
   "private": false,
-  "version": "0.2.1",
+  "version": "0.2.2",
   "repository": "https://github.com/hxg2050/feiyun.git",
   "license": "MIT",
   "main": "./dist/index.cjs",
@@ -38,7 +38,9 @@
   "dependencies": {
     "eventemitter3": "^5.0.1",
     "feiyun-handler": "^0.0.6",
+    "queue": "^7.0.0",
     "reflect-metadata": "^0.1.13",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.42.0",
     "ws": "^8.14.1"
   }
 }

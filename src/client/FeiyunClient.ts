@@ -1,4 +1,7 @@
 import EventEmitter from 'eventemitter3'
+import Queue from 'queue'
+
+import WebSocket from './node';
 
 export interface ClientConfig {
   url: string
@@ -17,6 +20,9 @@ export class FeiyunClient {
 
   private emitter: EventEmitter = new EventEmitter()
   private anyKey = Symbol('anyKey')
+
+  private queue = new Queue({ results: [] });
+  public online: boolean = false;
 
   constructor(private config: ClientConfig) {
     this.ws = new WebSocket(this.config.url)
@@ -40,9 +46,11 @@ export class FeiyunClient {
    * 连接成功
    */
   onOpen() {
-    console.log('连接服务器成功')
-    this.config.heart && this.ping()
-    this.emitter.emit('connect')
+    console.log('连接服务器成功');
+    this.config.heart && this.ping();
+    this.online = true;
+    this.emitter.emit('connect');
+    this.queue.start();
   }
 
   pingTimeout?: number | NodeJS.Timeout
@@ -74,6 +82,7 @@ export class FeiyunClient {
 
   onClose() {
     console.log('连接断开')
+    this.online = false;
     clearTimeout(this.pingTimeout)
     this.emitter.emit('disconnect')
   }
@@ -82,7 +91,14 @@ export class FeiyunClient {
    * 发送消息
    */
   send(name: string, data?: any) {
-    this.ws.send(JSON.stringify([++this.index, name, data]))
+    ++this.index;
+    if (this.online) {
+      this.ws.send(JSON.stringify([this.index, name, data]));
+    } else {
+      this.queue.push(() => {
+        this.ws.send(JSON.stringify([this.index, name, data]));
+      });
+    }
   }
 
   /**
