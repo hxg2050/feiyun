@@ -8,7 +8,11 @@ export interface ClientConfig {
   /**
    * 心跳间隔时间
    */
-  heart: number
+  heart?: number
+
+  autoConnect?: boolean
+  autoReconnect?: boolean
+  reconnectTime?: number
 }
 
 type EventCallback = (...args: any[]) => void
@@ -16,46 +20,46 @@ type EventCallback = (...args: any[]) => void
 export class FeiyunClient {
   private index: number = 0
 
-  private ws: WebSocket
+  private ws!: WebSocket;
 
-  private emitter: EventEmitter = new EventEmitter()
+  public emitter: EventEmitter = new EventEmitter()
   private anyKey = Symbol('anyKey')
 
   private queue = new Queue({ results: [] });
   public online: boolean = false;
 
-  constructor(private config: ClientConfig) {
-    this.ws = new WebSocket(this.config.url)
-    this.ws.addEventListener('open', () => {
-      this.onOpen()
-    })
-    this.ws.addEventListener('message', (event) => {
-      this.onMessage(event.data)
-    })
-    this.ws.addEventListener('close', () => {
-      this.onClose()
-    })
-  }
+  public config: Required<ClientConfig> = {
+    url: '',
+    heart: 30 * 1000,
+    autoConnect: true,
+    autoReconnect: true,
+    reconnectTime: 5 * 1000
+  };
 
-  // private _connection?: () => void;
-  // onConnection(callback: () => void) {
-  //     this._connection = callback;
-  // }
+  private canClose = false;
+
+  constructor(config: ClientConfig) {
+    this.config = Object.assign({}, this.config, config);
+    if (this.config.autoConnect) {
+      this.connect();
+    }
+  }
 
   /**
    * 连接成功
    */
-  onOpen() {
+  private onOpen() {
     console.log('连接服务器成功');
+    clearTimeout(this.reconnectTimer);
     this.config.heart && this.ping();
     this.online = true;
     this.emitter.emit('connect');
     this.queue.start();
   }
 
-  pingTimeout?: number | NodeJS.Timeout
+  pingTimeout?: any
 
-  ping() {
+  private ping() {
     this.ws.send('ping')
     this.pingTimeout = setTimeout(() => {
       this.ping()
@@ -65,7 +69,7 @@ export class FeiyunClient {
   /**
    * 接受到消息
    */
-  onMessage(data: string) {
+  private onMessage(data: string) {
     const msg = JSON.parse(data)
     const [id, route, req]: [number, number | string, any] = msg
     if (typeof route === 'number') {
@@ -80,15 +84,40 @@ export class FeiyunClient {
     this.emitter.emit(route, req)
   }
 
-  onClose() {
+  private onError() {
+    this.emitter.emit('error');
+    this.autoReconnect();
+  }
+
+  private onClose() {
     console.log('连接断开')
     this.online = false;
     clearTimeout(this.pingTimeout)
     this.emitter.emit('disconnect')
+    this.autoReconnect();
+  }
+
+  private lastConnectTime = 0;
+  private reconnectTimer?: any;
+  /**
+   * Auto connect server.
+   * @returns 
+   */
+  private autoReconnect() {
+    if (this.reconnectTimer) {
+      return;
+    }
+
+    // Get the waiting time for the timer.
+    const waitTime = Math.min(this.config.reconnectTime, performance.now() - this.lastConnectTime);
+    // Record the current time.
+    this.lastConnectTime = performance.now();
+    // Save last timer.
+    this.reconnectTimer = setTimeout(this.reconnect.bind(this), waitTime);
   }
 
   /**
-   * 发送消息
+   * Send message to server.
    */
   send(name: string, data?: any) {
     ++this.index;
@@ -145,9 +174,54 @@ export class FeiyunClient {
   }
 
   /**
-   * 断开连接
+   * Connect server
+   */
+  connect() {
+    this.canClose = false;
+    this.ws = new WebSocket(this.config.url)
+    this.ws.addEventListener('open', () => {
+      this.onOpen()
+    })
+    this.ws.addEventListener('error', (event) => {
+      this.onError()
+    })
+    this.ws.addEventListener('message', (event) => {
+      this.onMessage(event.data)
+    })
+    this.ws.addEventListener('close', () => {
+      this.onClose()
+    })
+  }
+
+  /**
+   * 重连
+   */
+  reconnect() {
+    this.ws = new WebSocket(this.config.url)
+    this.ws.addEventListener('open', () => {
+      console.log('重新连接服务器成功');
+      this.online = true;
+      this.emitter.emit('reconnect');
+      this.queue.start();
+      clearTimeout(this.reconnectTimer);
+    })
+
+    this.ws.addEventListener('error', (event) => {
+      this.onError()
+    })
+    this.ws.addEventListener('message', (event) => {
+      this.onMessage(event.data)
+    })
+    this.ws.addEventListener('close', () => {
+      this.onClose()
+    })
+  }
+
+  /**
+   * Close connection
    */
   close() {
+    this.canClose = true;
     this.ws.close()
   }
 }
