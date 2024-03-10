@@ -8,6 +8,9 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "files": [
     "dist/"
   ],
@@ -30,6 +33,7 @@
     "@types/ws": "^8.5.5",
     "jest": "^29.7.0",
     "rollup": "^3.29.1",
+    "rollup-plugin-dts": "^6.1.0",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
     "tslib": "^2.6.2",
@@ -37,10 +41,8 @@
   },
   "dependencies": {
     "eventemitter3": "^5.0.1",
-    "feiyun-handler": "^0.0.6",
     "queue": "^7.0.0",
     "reflect-metadata": "^0.1.13",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.42.0",
     "ws": "^8.14.1"
   }
 }

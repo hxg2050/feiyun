@@ -1,0 +1,12 @@
+{
+  "name": "feiyun",
+  "version": "0.2.3",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "devDependencies": {
+    "@feiyun/server": "^0.0.1"
+  }
+}

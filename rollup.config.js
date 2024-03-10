@@ -1,5 +1,6 @@
 import typescript from '@rollup/plugin-typescript'
 import { defineConfig } from 'rollup'
+import { dts } from "rollup-plugin-dts";
 
 export default defineConfig({
   input: 'src/index.ts',
@@ -11,4 +12,9 @@ export default defineConfig({
     format: 'esm',
   }],
   plugins: [typescript()],
-})
+},
+{
+  input: 'src/index.ts',
+  output: [{ file: "dist/index.d.ts", format: "es" }],
+  plugins: [dts()],
+},)
