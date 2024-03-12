@@ -11,8 +11,6 @@ on:
 
 jobs:
   publish-npm:
-    name: Release
-    if: ${{ github.repository_owner == 'liruifengv' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
