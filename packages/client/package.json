@@ -5,8 +5,12 @@
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "prepublishOnly": "pnpm build"
   },
+  "files": [
+    "dist/"
+  ],
   "publishConfig": {
     "main": "./dist/index.cjs",
     "module": "./dist/index.mjs",
