@@ -1,1 +1,1 @@
-import * as a from '@feiyun/server'
+export * from '@feiyun/server'

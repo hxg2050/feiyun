@@ -1,4 +1,14 @@
 {
-    "name": "@feiyun/client",
-    "version": "0.0.1"
+  "name": "@feiyun/client",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "publishConfig": {
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts"
   }
+}
