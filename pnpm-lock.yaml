@@ -58,7 +58,11 @@ importers:
         specifier: workspace:^
         version: link:../server
 
-  packages/server: {}
+  packages/server:
+    devDependencies:
+      '@types/bun':
+        specifier: ^1.0.8
+        version: 1.0.8
 
 packages:
 
@@ -73,6 +77,7 @@ packages:
   /@babel/helper-validator-identifier@7.22.20:
     resolution: {integrity: sha512-Y4OZ+ytlatR8AI+8KZfKuL5urKp7qey08ha31L8b3BwewJAoJamTzyvxPR/5D+KkdJCGPq/+8TukHBlY10FX9A==}
     engines: {node: '>=6.9.0'}
+    requiresBuild: true
     dev: true
 
   /@babel/highlight@7.23.4:
