@@ -1,10 +1,13 @@
 {
   "name": "feiyun",
   "repository": "https://github.com/hxg2050/feiyun.git",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "private": false,
   "type": "module",
   "main": "./src/index.ts",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "build": "rimraf dist && rollup -c",
     "prepublishOnly": "pnpm build"
