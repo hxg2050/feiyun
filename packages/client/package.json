@@ -1,11 +1,12 @@
 {
   "name": "@feiyun/client",
-  "version": "0.0.2",
+  "repository": "https://github.com/hxg2050/feiyun.git",
+  "version": "0.0.4",
   "private": false,
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {
-    "build": "rollup -c",
+    "build": "rimraf dist && rollup -c",
     "prepublishOnly": "pnpm build"
   },
   "files": [
@@ -15,5 +16,14 @@
     "main": "./dist/index.cjs",
     "module": "./dist/index.mjs",
     "types": "./dist/index.d.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/ws": "^8.5.5"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.1",
+    "queue": "^7.0.0",
+    "ws": "^8.14.1"
   }
 }

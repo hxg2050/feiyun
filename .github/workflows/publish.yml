@@ -11,6 +11,7 @@ on:
 
 jobs:
   publish-npm:
+    if: ${{ github.repository_owner == 'liruifengv' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -18,9 +19,14 @@ jobs:
         with:
           node-version: 18
           registry-url: https://registry.npmjs.org/
-      - run: npm install bun -g
-      - run: bun install
-      - run: bun run build
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - run: npm install pnpm -g
+      - run: pnpm install
+      - uses: changesets/action@v1
+      with:
+        version: pnpm run version
+        publish: pnpm run publish
+        commit: '[ci] release'
+        title: '[ci] release'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

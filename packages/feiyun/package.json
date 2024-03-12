@@ -1,11 +1,13 @@
 {
   "name": "feiyun",
-  "version": "0.2.3",
-  "private": true,
+  "repository": "https://github.com/hxg2050/feiyun.git",
+  "version": "0.2.5",
+  "private": false,
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rimraf dist && rollup -c",
+    "prepublishOnly": "pnpm build"
   },
   "publishConfig": {
     "main": "./dist/index.cjs",
@@ -13,6 +15,7 @@
     "types": "./dist/index.d.ts"
   },
   "dependencies": {
+    "@feiyun/client": "workspace:^",
     "@feiyun/server": "workspace:^"
   }
 }

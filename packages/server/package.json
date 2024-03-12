@@ -1,11 +1,15 @@
 {
     "name": "@feiyun/server",
+    "repository": "https://github.com/hxg2050/feiyun.git",
     "private": false,
-    "version": "0.0.1",
+    "version": "0.0.2",
     "type": "module",
     "main": "./src/index.ts",
+    "engines": {
+        "bun": "^1.0.0"
+    },
     "scripts": {
-        "build": "rollup -c",
+        "build": "rimraf dist && rollup -c",
         "prepublishOnly": "pnpm build"
     },
     "files": [
