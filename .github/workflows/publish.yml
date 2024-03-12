@@ -14,19 +14,19 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 18
-        registry-url: https://registry.npmjs.org/
-    - run: npm install pnpm -g
-    - run: pnpm install
-    - uses: changesets/action@v1
-    with:
-      version: pnpm run version
-      publish: pnpm run publish
-      commit: '[ci] release'
-      title: '[ci] release'
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org/
+      - run: npm install pnpm -g
+      - run: pnpm install
+      - uses: changesets/action@v1
+        with:
+          version: pnpm run version
+          publish: pnpm run publish
+          commit: '[ci] release'
+          title: '[ci] release'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
