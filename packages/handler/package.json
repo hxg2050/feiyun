@@ -1,0 +1,69 @@
+{
+  "name": "feiyun-handler",
+  "version": "0.0.21",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "publishConfig": {
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "types": "./types/src/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./types/src/index.d.ts",
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      },
+      "./class-validator": {
+        "types": "./types/class-validator/index.d.ts",
+        "import": "./class-validator/dist/index.mjs",
+        "require": "./class-validator/dist/index.cjs"
+      },
+      "./class-transformer": {
+        "types": "./types/class-transformer/index.d.ts",
+        "import": "./class-transformer/dist/index.mjs",
+        "require": "./class-transformer/dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "class-validator/dist",
+    "class-validator/package.json",
+    "class-transformer/dist",
+    "class-transformer/package.json",
+    "types"
+  ],
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    },
+    "./class-validator": {
+      "import": "./class-validator/index.ts"
+    },
+    "./class-transformer": {
+      "import": "./class-transformer/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "rimraf **/dist && tsc && rollup -c",
+    "prepublishOnly": "pnpm build"
+  },
+  "devDependencies": {
+    "@feiyun/server": "workspace:^",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/node": "^20.11.19",
+    "feiyun": "^0.2.3",
+    "reflect-metadata": "^0.2.1",
+    "rollup": "^4.12.0",
+    "rollup-plugin-ts": "^3.4.5",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "glob": "^10.3.10"
+  }
+}

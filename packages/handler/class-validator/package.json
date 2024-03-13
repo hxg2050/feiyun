@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "../types/class-validator/index.d.ts"
+}
