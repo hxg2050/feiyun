@@ -83,7 +83,7 @@ importers:
         specifier: ^20.11.19
         version: 20.11.26
       feiyun:
-        specifier: ^0.2.3
+        specifier: ^0.2.11
         version: link:../feiyun
       rollup:
         specifier: ^4.12.0
