@@ -1,7 +1,7 @@
 {
   "name": "feiyun",
   "repository": "https://github.com/hxg2050/feiyun.git",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "private": false,
   "type": "module",
   "main": "./src/index.ts",
