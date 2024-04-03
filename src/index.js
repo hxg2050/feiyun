@@ -1,1 +1,0 @@
-const fy = require('@feiyun/client');

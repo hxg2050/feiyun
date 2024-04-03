@@ -151,8 +151,8 @@ const runHandler = async (handler: any, ctx: Context) => {
                 code: 500,
                 msg: Object.values(errors![0].constraints!)[0]
             }
+            return;
         }
-        return;
     }
 
     try {
