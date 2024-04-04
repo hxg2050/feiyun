@@ -180,12 +180,8 @@ const runHandler = async (handler: any, ctx: Context) => {
  * @param rule 导入路径规则
  * @returns 
  */
-export const include = async (baseDir: string, rule = '**/*.handler.ts'): Promise<FeiyunMiddleware> => {
-    // const dirs = await readdir(path);
-    // const files = await findUp(path + '/' + rule);
-    // console.log(files);
-    console.log(path.resolve(baseDir, rule));
-    const handlerPaths = await glob(path.resolve(baseDir, rule));
+export const include = async (rule = '**/*.handler.ts'): Promise<FeiyunMiddleware> => {
+    const handlerPaths = await glob(rule);
 
     const handlers = [];
 
