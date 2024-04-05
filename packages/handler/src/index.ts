@@ -156,7 +156,7 @@ const runHandler = async (handler: any, ctx: Context) => {
     }
 
     try {
-        const res = await handler.method(ctx.request.data, ctx.socket);
+        const res = await handler.method(ctx.request.data, ctx);
         if (res) {
             ctx.response.data = {
                 data: res
