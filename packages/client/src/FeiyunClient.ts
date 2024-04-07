@@ -135,7 +135,9 @@ export class FeiyunClient {
    * @param name
    * @param callback
    */
-  on(name: string | symbol | EventCallback, callback: EventCallback | any, target: any) {
+  on(name: string | symbol, callback: EventCallback, target?: any): void
+  on(callback: EventCallback, target?: any): void
+  on(name: string | symbol | EventCallback, callback?: EventCallback | any, target?: any) {
     if (typeof name === 'function') {
       // 监听所有服务器通知消息
       this.on(this.anyKey, name, callback)
