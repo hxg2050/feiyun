@@ -39,29 +39,7 @@ export class Feiyun {
     this.config = { ...this.config, ...config }
   }
 
-  listen(port?: number) {
-    // const wss = new WebSocketServer(this.config);
-    // wss.on('connection', (ws, request) => {
-    //     ws.on('open', () => {
-
-    //     });
-    //     ws.on('message', () => {
-
-    //     });
-    //     ws.on('error', () => {
-
-    //     });
-    //     ws.on('close', () => {
-
-    //     });
-    // });
-    // wss.on('close', () => {
-
-    // });
-
-    // wss.on('error', () => {
-
-    // });
+  listen() {
     this.server = new Server(this.config)
     this.server.start()
     this.server.handlerCallback = (client, data) => {
@@ -87,13 +65,6 @@ export class Feiyun {
     console.log('server listen:', `ws://${this.config.host}:${this.config.port}`)
   }
 
-  // callback() {
-  //     const ctx = new Context();
-  //     return (client, data) => {
-
-  //     }
-  // }
-
   use(fn: FeiyunMiddleware) {
     this.middleware.push(fn)
     return this
@@ -101,28 +72,8 @@ export class Feiyun {
 
   async responseHandler(ctx: Context) {
     if (ctx.response.data) {
-      this.server.reply(ctx.socket.socket, ctx.request.id, ctx.response.data)
+      ctx.socket.send(ctx.request.id, ctx.response.data);
+      // this.server.reply(ctx.socket.socket, ctx.request.id, ctx.response.data)
     }
   }
 }
-
-// const app = new Feiyun();
-// app.use(async (ctx, next) => {
-//     const msg = JSON.parse(ctx.message);
-//     const [rid, route, req]: [number, string, any] = msg;
-
-//     const handler = this.handlers.get(route);
-
-//     ctx.response.body = await handler();
-
-//     if (!handler) {
-//         return;
-//     }
-
-//     const res = await handler(req, client);
-
-//     // 如果有返回值，那么直接回应
-//     if (res) {
-//         this.reply(client.socket, rid, res);
-//     }
-// });

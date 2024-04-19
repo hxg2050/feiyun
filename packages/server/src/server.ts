@@ -21,7 +21,7 @@ export class Server {
 
   clients: Map<number, Socket> = new Map()
   clientsFromServerWebSocket: Map<ServerWebSocket, Socket> = new Map();
-  clientsFromUid: Map<string | number, Socket> = new Map()
+  clientsFromUid: Map<number, Socket> = new Map()
 
   /**
    * 配置
@@ -83,22 +83,19 @@ export class Server {
    * @param name
    * @param data
    */
-  send(sokcet: ServerWebSocket, name: string | number, data: any) {
-    sokcet.send(JSON.stringify([1, name, data]))
-  }
+  // send(sokcet: Socket, name: string | number, data: any) {
+  //   sokcet.send(JSON.stringify([1, name, data]))
+  // }
 
   /**
    * 发送消息到客户端(uid)
    */
-  sendToUid(uid: string | number, name: string, data: any) {
-    const socket = this.clientsFromUid.get(uid)
-
+  sendToUid(uid: number, name: string, data: any) {
+    const socket = this.getByUid(uid);
     if (!socket) {
       return false
     }
-
     socket.send(name, data)
-
     return true
   }
 
@@ -106,10 +103,36 @@ export class Server {
    * 给客户端回复消息
    * @param socket
    * @param id
-   * @param data
+   * @param data - 内容
    */
-  reply(socket: ServerWebSocket, id: number, data: any) {
-    this.send(socket, id, data)
+  reply(socket: Socket, id: number, data: any) {
+    socket.send(id, data)
+  }
+
+  /**
+   * 绑定uid到连接上
+   * @param uid 
+   * @param socket 
+   */
+  bindUid(uid: number, socket: Socket) {
+    this.clientsFromUid.set(uid, socket);
+  }
+
+  /**
+   * 获取用户连接
+   * @param uid 
+   * @returns 
+   */
+  getByUid(uid: number) {
+    return this.clientsFromUid.get(uid);
+  }
+
+  /**
+   * 获取在线状态
+   */
+  isOnline(uid: number) {
+    const socket = this.getByUid(uid);
+    return socket?.socket.readyState === 1
   }
 
   isDebug = false
