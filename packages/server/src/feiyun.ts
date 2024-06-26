@@ -1,10 +1,12 @@
 import type { Socket } from './socket'
 import { compose, type Middleware } from './compose'
 import { Server } from './server'
+import { IServer } from './IServer'
 
 export interface ApplicationConfig {
   host: string
   port: number
+  customServer?: (config: ApplicationConfig) => IServer
 }
 
 export class Request {
@@ -33,14 +35,16 @@ export class Feiyun {
     port: 3000,
   }
 
-  public server!: Server
+  public server!: IServer
 
   constructor(config: Partial<ApplicationConfig> = {}) {
     this.config = { ...this.config, ...config }
   }
 
   listen() {
-    this.server = new Server(this.config)
+    this.server = this.config.customServer ? this.config.customServer(this.config) : new Server({
+      port: this.config.port
+    })
     this.server.start()
     this.server.handlerCallback = (client, data) => {
       const ctx = new Context()
@@ -72,8 +76,7 @@ export class Feiyun {
 
   async responseHandler(ctx: Context) {
     if (ctx.response.data) {
-      ctx.socket.send(ctx.request.id, ctx.response.data);
-      // this.server.reply(ctx.socket.socket, ctx.request.id, ctx.response.data)
+      this.server.reply(ctx.socket.id, ctx.request.id, ctx.response.data)
     }
   }
 }

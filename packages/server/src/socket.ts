@@ -1,8 +1,16 @@
-import { ServerWebSocket } from 'bun'
-import type { Server } from './server'
+import { IServer } from './IServer';
+
+const createId = (() => {
+  let id = 0
+  return () => {
+    return ++ id;
+  }
+})();
 
 export class Socket {
-  constructor(public id: number, public server: Server, public socket: ServerWebSocket) {
+  id = createId();
+
+  constructor(public server: IServer) {
 
   }
 
@@ -29,9 +37,14 @@ export class Socket {
   /**
    * 发送消息
    */
-  send(name: number, data?: any): void
-  send(name: string, data?: any): void
-  send(name: string | number, data?: any) {
-    this.socket.send(JSON.stringify([1, name, data]))
+  send(name: string, data?: any) {
+    this.server.sendTo(this.id, name, data);
+  }
+
+  /**
+   * 断开链接
+   */
+  close() {
+
   }
 }
