@@ -5,6 +5,7 @@ export interface IServer {
     start(): void
     
     handlerCallback?: (client: Socket, data: string) => void
+    closeHandlerCallback?: (client: Socket) => void
 
     /**
      * 绑定uid

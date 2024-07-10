@@ -14,6 +14,9 @@ importers:
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
         version: 15.2.3(rollup@3.29.1)
+      eventemitter3:
+        specifier: ^5.0.1
+        version: 5.0.1
     devDependencies:
       '@changesets/cli':
         specifier: ^2.27.1
