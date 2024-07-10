@@ -15,8 +15,6 @@ interface ServerConfig {
 export class Server implements IServer {
   handlers = new Map<string, Handler>()
 
-  clientIndex: number = 0
-
   wss?: IWebsocketServer<WebSocketData>
 
   clientsFromServerWebSocket: Map<SWS, Socket> = new Map();
@@ -40,8 +38,7 @@ export class Server implements IServer {
     });
     this.wss.open((ws) => {
       const client = new Socket(this)
-      ws.data.socketId = client.id;
-      this.clients.set(this.clientIndex, ws)
+      this.clients.set(client.id, ws)
       this.clientsFromServerWebSocket.set(ws, client);
     });
     this.wss.message((ws, data) => {

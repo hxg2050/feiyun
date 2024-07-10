@@ -50,9 +50,9 @@ export class Feiyun {
       client.close();
     }
     this.server.handlerCallback = (client, data) => {
-      const ctx = new Context()
-      ctx.socket = client
       try {
+        const ctx = new Context()
+        ctx.socket = client
         const msg = JSON.parse(data)
 
         const [rid, route, reqData]: [number, string, any] = msg
