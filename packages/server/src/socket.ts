@@ -1,4 +1,5 @@
 import { IServer } from './IServer';
+import EventEmitter from 'eventemitter3';
 
 const createId = (() => {
   let id = 0
@@ -7,11 +8,12 @@ const createId = (() => {
   }
 })();
 
-export class Socket {
+export class Socket extends EventEmitter {
+  
   id = createId();
 
   constructor(public server: IServer) {
-
+    super();
   }
 
   data: Record<string, any> = {}
@@ -45,6 +47,6 @@ export class Socket {
    * 断开链接
    */
   close() {
-
+    this.emit('close', this)
   }
 }

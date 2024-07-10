@@ -46,6 +46,9 @@ export class Feiyun {
       port: this.config.port
     })
     this.server.start()
+    this.server.closeHandlerCallback = (client) => {
+      client.close();
+    }
     this.server.handlerCallback = (client, data) => {
       const ctx = new Context()
       ctx.socket = client
