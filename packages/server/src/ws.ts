@@ -1,11 +1,17 @@
 import { ServerWebSocket } from "bun";
 import { IWebsocketServer } from "./IWebsocketServer";
 
-const ALL = '_:world';
-export const createWebsocketServer = (options: { port?: number, timeout?: number } = {}): IWebsocketServer => {
+export type WebSocketData = {
+  socketId: number
+}
 
-  const allTimeout: Map<ServerWebSocket, Timer> = new Map();
-  const ping = (ws: ServerWebSocket) => {
+export type SWS = ServerWebSocket<WebSocketData>;
+
+const ALL = '_:world';
+export const createWebsocketServer = (options: { port?: number, timeout?: number } = {}): IWebsocketServer<WebSocketData> => {
+
+  const allTimeout: Map<SWS, Timer> = new Map();
+  const ping = (ws: SWS) => {
     if (!options.timeout || options.timeout < 0) {
       return
     }
@@ -13,14 +19,14 @@ export const createWebsocketServer = (options: { port?: number, timeout?: number
     allTimeout.set(ws, setTimeout(ws.close, options.timeout));
   }
 
-  const stopPing = (ws: ServerWebSocket) => {
+  const stopPing = (ws: SWS) => {
     clearTimeout(allTimeout.get(ws));
     allTimeout.delete(ws);
   }
 
-  let openHandler: (ws: ServerWebSocket) => void;
-  let messageHandler: (ws: ServerWebSocket, message: string | Buffer) => void;
-  let closeHandler: (ws: ServerWebSocket) => void;
+  let openHandler: (ws: SWS) => void;
+  let messageHandler: (ws: SWS, message: string | Buffer) => void;
+  let closeHandler: (ws: SWS) => void;
 
   const open = (handler: typeof openHandler) => {
     openHandler = handler;
@@ -33,7 +39,7 @@ export const createWebsocketServer = (options: { port?: number, timeout?: number
     closeHandler = handler;
   }
 
-  Bun.serve<undefined>({
+  Bun.serve<WebSocketData>({
     port: 3000,
     fetch(req, server) {
       if (

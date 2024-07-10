@@ -1,7 +1,7 @@
 import { Socket } from './socket'
-import { createWebsocketServer } from './ws'
+import { SWS, WebSocketData, createWebsocketServer } from './ws'
 import { IWebsocketServer } from './IWebsocketServer'
-import { ServerWebSocket } from 'bun'
+import { IServer } from './IServer'
 type Handler = (msg: any, client: Socket) => Promise<any> | any
 
 
@@ -12,27 +12,23 @@ interface ServerConfig {
 /**
  * 服务器
  */
-export class Server {
+export class Server implements IServer {
   handlers = new Map<string, Handler>()
 
   clientIndex: number = 0
 
-  wss?: IWebsocketServer
+  wss?: IWebsocketServer<WebSocketData>
 
-  clients: Map<number, Socket> = new Map()
-  clientsFromServerWebSocket: Map<ServerWebSocket, Socket> = new Map();
-  clientsFromUid: Map<string | number, Socket> = new Map()
+  clientsFromServerWebSocket: Map<SWS, Socket> = new Map();
+
+  clients: Map<number, SWS> = new Map()
+  clientsFromUid: Map<number, number> = new Map()
 
   /**
    * 配置
    * @param config 配置
    */
   constructor(private config: ServerConfig) {
-    // this.wss = new WebSocketServer(config);
-    // this.wss.on('connection', (socket, request) => {
-    //     this.onConnection(socket, request);
-    // });
-    // console.log('ws://127.0.0.1:' + config.port);
   }
 
   /**
@@ -43,8 +39,9 @@ export class Server {
       port: this.config.port
     });
     this.wss.open((ws) => {
-      const client = new Socket(++this.clientIndex, this, ws)
-      this.clients.set(this.clientIndex, client)
+      const client = new Socket(this)
+      ws.data.socketId = client.id;
+      this.clients.set(this.clientIndex, ws)
       this.clientsFromServerWebSocket.set(ws, client);
     });
     this.wss.message((ws, data) => {
@@ -77,39 +74,76 @@ export class Server {
     this.handlers.set(path, handler)
   }
 
+  unbindUid(uid: number): void {
+      this.clientsFromUid.delete(uid)
+  }
+
   /**
    * 发送消息到客户端
    * @param sokcet
    * @param name
    * @param data
    */
-  send(sokcet: ServerWebSocket, name: string | number, data: any) {
+  send(sokcet: SWS, name: string | number, data: any) {
     sokcet.send(JSON.stringify([1, name, data]))
+  }
+
+
+  sendTo(id: number, name: string, data: any): void {
+    const sws = this.clients.get(id);
+    if (!sws) {
+      return;
+    }
+    this.send(sws, name, data)
   }
 
   /**
    * 发送消息到客户端(uid)
    */
-  sendToUid(uid: string | number, name: string, data: any) {
-    const socket = this.clientsFromUid.get(uid)
+  sendToUid(uid: number, name: string, data: any) {
+    const socketId = this.clientsFromUid.get(uid)
 
-    if (!socket) {
-      return false
+    if (!socketId) {
+      return;
     }
+    this.sendTo(socketId, name, data)
+  }
 
-    socket.send(name, data)
+  /**
+   * 绑定uid到连接上
+   * @param uid 
+   * @param socket 
+   */
+  bindUid(uid: number, socket: Socket) {
+    this.clientsFromUid.set(uid, socket.id);
+  }
 
-    return true
+  /**
+   * 获取用户连接
+   * @param uid 
+   * @returns 
+   */
+  getByUid(uid: number) {
+    return this.clientsFromUid.get(uid);
+  }
+
+  /**
+   * 获取在线状态
+   */
+  isOnline(uid: number) {
+    const socket = this.clients.get(uid);
+    return socket?.readyState === 1
   }
 
   /**
    * 给客户端回复消息
-   * @param socket
-   * @param id
-   * @param data
    */
-  reply(socket: ServerWebSocket, id: number, data: any) {
-    this.send(socket, id, data)
+  reply(socketId: number, requestId: number, data: any) {
+    const sws = this.clients.get(socketId);
+    if (!sws) {
+      return;
+    }
+    this.send(sws, requestId, data)
   }
 
   isDebug = false

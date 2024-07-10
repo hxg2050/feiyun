@@ -2,7 +2,7 @@
     "name": "@feiyun/server",
     "repository": "https://github.com/hxg2050/feiyun.git",
     "private": false,
-    "version": "0.0.6",
+    "version": "0.1.0",
     "type": "module",
     "main": "./src/index.ts",
     "engines": {

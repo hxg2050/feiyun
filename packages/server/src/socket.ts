@@ -1,8 +1,16 @@
-import { ServerWebSocket } from 'bun'
-import type { Server } from './server'
+import { IServer } from './IServer';
+
+const createId = (() => {
+  let id = 0
+  return () => {
+    return ++ id;
+  }
+})();
 
 export class Socket {
-  constructor(public id: number, public server: Server, public socket: ServerWebSocket) {
+  id = createId();
+
+  constructor(public server: IServer) {
 
   }
 
@@ -15,15 +23,14 @@ export class Socket {
     this.data[name] = value
   }
 
-  private _uid?: number | string
+  private _uid?: number
   get uid() {
     return this._uid
   }
-
   set uid(val) {
     this._uid = val
     if (this._uid !== undefined) {
-      this.server.clientsFromUid.set(this._uid, this)
+      this.server.bindUid(this._uid, this);
     }
   }
 
@@ -31,6 +38,13 @@ export class Socket {
    * 发送消息
    */
   send(name: string, data?: any) {
-    this.server.send(this.socket, name, data)
+    this.server.sendTo(this.id, name, data);
+  }
+
+  /**
+   * 断开链接
+   */
+  close() {
+
   }
 }
