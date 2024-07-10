@@ -49,6 +49,7 @@ export class Server implements IServer {
       this.onMessage(this.clientsFromServerWebSocket.get(ws)!, str)
     });
     this.wss.close((ws) => {
+      this.closeHandlerCallback?.(this.clientsFromServerWebSocket.get(ws)!)
       this.clientsFromServerWebSocket.delete(ws);
     });
     // console.log('ws://127.0.0.1:' + this.config.port);
@@ -65,10 +66,7 @@ export class Server implements IServer {
 
   handlerCallback?: (client: Socket, data: string) => void
 
-  private closeHandler?: (client: Socket) => void
-  onClose(callback: (client: Socket) => void) {
-    this.closeHandler = callback
-  }
+  closeHandlerCallback?: (client: Socket) => void
 
   on(path: string, handler: Handler) {
     this.handlers.set(path, handler)
