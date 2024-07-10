@@ -92,9 +92,6 @@ importers:
       '@types/node':
         specifier: ^20.11.19
         version: 20.11.26
-      feiyun:
-        specifier: workspace:^
-        version: link:../feiyun
       rollup:
         specifier: ^4.12.0
         version: 4.12.0

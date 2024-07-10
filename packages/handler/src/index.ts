@@ -4,7 +4,7 @@ import path from "node:path";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 
-import type { Context, FeiyunMiddleware } from 'feiyun'
+import type { Context, FeiyunMiddleware } from '@feiyun/server'
 const PATH_METADATA = 'path';
 const METHOD_METADATA = 'method';
 const PARAM_METADATA = 'param';
