@@ -142,13 +142,4 @@ export class Server implements IServer {
   }
 
   isDebug = false
-
-  doc?: string
-
-  debug(isDebug: boolean, config: {
-    doc?: string
-  }) {
-    this.isDebug = isDebug
-    this.doc = config.doc
-  }
 }

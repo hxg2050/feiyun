@@ -4,7 +4,7 @@ import path from "node:path";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 
-import type { Context, FeiyunMiddleware } from '@feiyun/server'
+import type { Context, Feiyun, FeiyunMiddleware } from '@feiyun/server'
 const PATH_METADATA = 'path';
 const METHOD_METADATA = 'method';
 const PARAM_METADATA = 'param';
@@ -76,7 +76,7 @@ export const ParamType: ParameterDecorator = (target, key, index) => {
 
 const METHOD_DOC_METADATA = 'method_doc';
 
-type Options = {
+type DocOptions = {
     /**
      * 标题
      */
@@ -89,7 +89,7 @@ type Options = {
 /**
  * 文档
  */
-export const ApiDoc = (options: Options): MethodDecorator => {
+export const ApiDoc = (options: DocOptions): MethodDecorator => {
     return (target, key, descriptor: any) => {
         Reflect.defineMetadata(METHOD_DOC_METADATA, options, descriptor.value);
     }
@@ -141,6 +141,21 @@ export class ResponseError extends Error {
         super(msg);
     }
 }
+export const getHandlers = async (rule = '**/*.handler.ts') => {
+    const handlerPaths = await glob(rule);
+
+    const handlers = [];
+
+    for (let i = 0; i < handlerPaths.length; i++) {
+        const handler = await import(handlerPaths[i]);
+        if (handler.default) {
+            handlers.push(handler.default);
+        }
+    }
+    
+    return handlers;
+}
+
 
 const runHandler = async (handler: any, ctx: Context) => {
     if (handler.validate) {
@@ -174,31 +189,55 @@ const runHandler = async (handler: any, ctx: Context) => {
     }
 }
 
-/**
- * 自动导入应用文件
- * @param baseDir 应用文件夹
- * @param rule 导入路径规则
- * @returns 
- */
-export const include = async (rule = '**/*.handler.ts'): Promise<FeiyunMiddleware> => {
-    const handlerPaths = await glob(rule);
+export type IncludeOptions = {
+    docPath: string
+}
 
-    const handlers = [];
+export type HandlerOptoons = { rule: string } & IncludeOptions;
 
-    for (let i = 0; i < handlerPaths.length; i++) {
-        const handler = await import(handlerPaths[i]);
-        if (handler.default) {
-            handlers.push(handler.default);
+export const createHandler = (app: Feiyun, options: HandlerOptoons) => {
+    options = Object.assign({}, {
+        docPath: 'doc'
+    }, options)
+    const isDebug = app.config.debug;
+    
+
+    /**
+     * 自动导入应用文件
+     * @param baseDir 应用文件夹
+     * @param rule 导入路径规则
+     * @returns 
+     */
+    const include = async (): Promise<FeiyunMiddleware> => {
+        
+        const handlers = await getHandlers(options.rule);
+
+        const mapRoute = useMapRoute(handlers);
+
+        const apis: {
+            path: string,
+            doc: DocOptions
+        }[] = [];
+        if (app.config.debug && options.docPath) {
+            mapRoute.forEach((handler, path) => {
+                apis.push({
+                    path,
+                    doc: handler.doc
+                });
+            });
         }
+        return async (ctx, next) => {
+            const handler = mapRoute.get(ctx.request.url);
+            if (handler) {
+                await runHandler(handler, ctx);
+            }
+
+            if (app.config.debug && ctx.request.url === options.docPath) {
+                ctx.response.data = apis;
+            }
+            next();
+        };
     }
 
-    const mapRoute = useMapRoute(handlers);
-
-    return async (ctx, next) => {
-        const handler = mapRoute.get(ctx.request.url);
-        if (handler) {
-            await runHandler(handler, ctx);
-        }
-        next();
-    };
+    return include();
 }

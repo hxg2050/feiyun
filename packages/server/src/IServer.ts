@@ -1,7 +1,8 @@
 import { Socket } from "./socket"
 
 export interface IServer {
-
+    isDebug: boolean;
+    
     start(): void
     
     handlerCallback?: (client: Socket, data: string) => void
