@@ -6,7 +6,8 @@ import { IServer } from './IServer'
 export interface ApplicationConfig {
   host: string
   port: number
-  customServer?: (config: ApplicationConfig) => IServer
+  customServer?: (config: ApplicationConfig) => IServer,
+  debug: boolean
 }
 
 export class Request {
@@ -33,6 +34,7 @@ export class Feiyun {
   public config: ApplicationConfig = {
     host: '0.0.0.0',
     port: 3000,
+    debug: false
   }
 
   public server!: IServer

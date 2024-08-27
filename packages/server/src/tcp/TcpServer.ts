@@ -40,4 +40,6 @@ export class TcpServer extends BaseServer<TcpSocket<SocketData>> implements ISer
     send(socket: TcpSocket<SocketData>, name: string | number, data: any): void {
         socket.write(JSON.stringify([1, name, data]));
     }
+
+    isDebug: boolean = false;
 }
