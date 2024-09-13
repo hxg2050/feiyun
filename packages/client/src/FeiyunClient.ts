@@ -120,12 +120,12 @@ export class FeiyunClient {
    * Send message to server.
    */
   send(name: string, data?: any) {
-    ++this.index;
+    const index = ++this.index;
     if (this.online) {
-      this.ws.send(JSON.stringify([this.index, name, data]));
+      this.ws.send(JSON.stringify([index, name, data]));
     } else {
       this.queue.push(() => {
-        this.ws.send(JSON.stringify([this.index, name, data]));
+        this.ws.send(JSON.stringify([index, name, data]));
       });
     }
   }
@@ -167,9 +167,10 @@ export class FeiyunClient {
    * @returns
    */
   async request(name: string, data?: any) {
-    this.send(name, data)
+    this.send(name, data);
+    const index = this.index;
     return new Promise((resolve, reject) => {
-      this.requestCallback[this.index] = (msg: any) => {
+      this.requestCallback[index] = (msg: any) => {
         resolve(msg)
       }
     })
