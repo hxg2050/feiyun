@@ -40,7 +40,7 @@ export const createWebsocketServer = (options: { port?: number, timeout?: number
   }
 
   Bun.serve<WebSocketData>({
-    port: 3000,
+    port: options.port,
     fetch(req, server) {
       if (
         server.upgrade(req, {
