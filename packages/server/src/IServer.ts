@@ -1,6 +1,12 @@
+import EventEmitter from "eventemitter3";
 import { Socket } from "./socket"
 
-export interface IServer {
+export interface IServerConfig {
+    port: number
+    timeout?: number
+}
+
+export interface IServer extends EventEmitter {
     isDebug: boolean;
     
     start(): void

@@ -1,12 +1,12 @@
+import EventEmitter from "eventemitter3";
 import { Socket } from "./socket";
 
-export abstract class BaseServer<T = any> {
+export abstract class BaseServer<T = any> extends EventEmitter {
     sockets = new Map<number, Socket>();
     clients = new Map<number, T>();
     uidSocketIds = new Map<number, number>()
 
-
-    handlerCallback?: ((client: Socket, data: string) => void) | undefined;
+    // handlerCallback?: ((client: Socket, data: string) => void) | undefined;
 
     bindUid(uid: number, socket: Socket): void {
         this.uidSocketIds.set(uid, socket.id)
@@ -39,5 +39,6 @@ export abstract class BaseServer<T = any> {
         }
         this.send(sws, requestId, data)
     }
-
+    
+    isDebug = false
 }
