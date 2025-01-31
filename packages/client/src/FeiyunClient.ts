@@ -49,7 +49,6 @@ export class FeiyunClient {
    * 连接成功
    */
   private onOpen() {
-    console.log('连接服务器成功');
     clearTimeout(this.reconnectTimer);
     this.config.heart && this.ping();
     this.online = true;
@@ -90,7 +89,6 @@ export class FeiyunClient {
   }
 
   private onClose() {
-    console.log('连接断开')
     this.online = false;
     clearTimeout(this.pingTimeout)
     this.emitter.emit('disconnect')
@@ -166,13 +164,22 @@ export class FeiyunClient {
    * @param data
    * @returns
    */
-  async request(name: string, data?: any) {
+  async request(name: string, data: any = {}, options: { timeout?: number } = {}) {
     this.send(name, data);
     const index = this.index;
+    const out = options.timeout || 30 * 1000;
     return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        delete this.requestCallback[index];
+        reject('timeout ' + out + 'ms');
+      }, out);
+
       this.requestCallback[index] = (msg: any) => {
+        clearTimeout(timeout);
+        delete this.requestCallback[index];
         resolve(msg)
       }
+
     })
   }
 
@@ -202,7 +209,6 @@ export class FeiyunClient {
   reconnect() {
     this.ws = new WebSocket(this.config.url)
     this.ws.addEventListener('open', () => {
-      console.log('重新连接服务器成功');
       this.online = true;
       this.emitter.emit('reconnect');
       this.queue.start();

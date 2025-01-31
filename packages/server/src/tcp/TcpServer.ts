@@ -24,11 +24,7 @@ export class TcpServer extends BaseServer<TcpSocket<SocketData>> implements ISer
                 },
                 data: (socket, data) => {
                     const client = this.sockets.get(socket.data.socketId)!;
-                    try {
-                        this.handlerCallback?.(client, data.toString())
-                    } catch (error) {
-                        console.error(error)
-                    }
+                    this.emit('mssage', client, data.toString());
                 },
                 close: (socket) => {
                     this.sockets.delete(socket.data.socketId);
