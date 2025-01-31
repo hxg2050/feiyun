@@ -4,84 +4,86 @@ import { Server } from './server'
 import { IServer } from './IServer'
 
 export interface ApplicationConfig {
-  host: string
-  port: number
-  customServer?: (config: ApplicationConfig) => IServer,
-  debug: boolean
+	host: string
+	port: number
+	customServer?: (config: ApplicationConfig) => IServer,
+	debug: boolean
 }
 
 export class Request {
-  id!: number
-  url: string = ''
-  data: any
+	id!: number
+	url: string = ''
+	data: any
 }
 
 export class Response {
-  data: any
+	data: any
 }
 
 export class Context {
-  socket!: Socket
-  request!: Request
-  response!: Response
+	socket!: Socket
+	request!: Request
+	response!: Response
 }
 
 export type FeiyunMiddleware = Middleware<Context>
 
 export class Feiyun {
-  public middleware: FeiyunMiddleware[] = []
+	public middleware: FeiyunMiddleware[] = []
 
-  public config: ApplicationConfig = {
-    host: '0.0.0.0',
-    port: 3000,
-    debug: false
-  }
+	public config: ApplicationConfig = {
+		host: '0.0.0.0',
+		port: 3000,
+		debug: false
+	}
 
-  public server!: IServer
+	public server!: IServer
 
-  constructor(config: Partial<ApplicationConfig> = {}) {
-    this.config = { ...this.config, ...config }
-  }
+	constructor(config: Partial<ApplicationConfig> = {}) {
+		this.config = { ...this.config, ...config }
+	}
 
-  listen() {
-    this.server = this.config.customServer ? this.config.customServer(this.config) : new Server({
-      port: this.config.port
-    })
-    this.server.start()
-    this.server.closeHandlerCallback = (client) => {
-      client.close();
-    }
-    this.server.handlerCallback = (client, data) => {
-      try {
-        const ctx = new Context()
-        ctx.socket = client
-        const msg = JSON.parse(data)
+	listen() {
+		this.server = this.config.customServer ? this.config.customServer(this.config) : new Server({
+			port: this.config.port
+		})
+		this.server.start()
+		this.server.on('close', (client) => {
+			client.close();
+		});
+		this.server.on('message', (client, data) => {
+			try {
+				const ctx = new Context()
+				ctx.socket = client
+				const msg = JSON.parse(data)
 
-        const [rid, route, reqData]: [number, string, any] = msg
-        const req = new Request()
-        req.id = rid
-        req.url = route
-        req.data = reqData
+				const [rid, route, reqData]: [number, string, any] = msg
+				const req = new Request()
+				req.id = rid
+				req.url = route
+				req.data = reqData
 
-        ctx.request = req
-        ctx.response = new Response()
+				ctx.request = req
+				ctx.response = new Response()
 
-        compose(this.middleware)(ctx, this.responseHandler.bind(this) as any)
-      } catch (error) {
-        console.error(error)
-      }
-    }
-    console.log('server listen:', `ws://${this.config.host}:${this.config.port}`)
-  }
+				compose(this.middleware)(ctx, this.responseHandler.bind(this) as any)
+			} catch (error) {
+				console.error(error)
+			}
+		});
+		console.log('server listen:', `ws://${this.config.host}:${this.config.port}`)
+	}
 
-  use(fn: FeiyunMiddleware) {
-    this.middleware.push(fn)
-    return this
-  }
+	use(fn: FeiyunMiddleware) {
+		this.middleware.push(fn)
+		return this
+	}
 
-  async responseHandler(ctx: Context) {
-    if (ctx.response.data) {
-      this.server.reply(ctx.socket.id, ctx.request.id, ctx.response.data)
-    }
-  }
+	async responseHandler(ctx: Context) {
+		if (ctx.response.data) {
+			this.server.reply(ctx.socket.id, ctx.request.id, ctx.response.data)
+		}
+	}
+
+	start = this.listen;
 }
