@@ -105,19 +105,6 @@ importers:
         specifier: ^5.3.3
         version: 5.3.3
 
-  packages/rpc:
-    dependencies:
-      feiyun:
-        specifier: workspace:^
-        version: link:../feiyun
-      queue:
-        specifier: ^7.0.0
-        version: 7.0.0
-    devDependencies:
-      '@types/bun':
-        specifier: latest
-        version: 1.1.12
-
   packages/server:
     devDependencies:
       '@types/bun':
