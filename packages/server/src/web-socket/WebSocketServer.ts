@@ -19,6 +19,7 @@ export class WebSocketServer extends BaseServer<ServerWebSocket<SocketData>> imp
             socket.data.socketId = client.id;
             this.clients.set(client.id, socket)
             this.sockets.set(client.id, client);
+            this.emit('connect', client)
         });
 
         ws.message((socket, message) => {
@@ -27,7 +28,9 @@ export class WebSocketServer extends BaseServer<ServerWebSocket<SocketData>> imp
         });
 
         ws.close((socket) => {
-            this.sockets.delete(socket.data.socketId);
+            const client = this.sockets.get(socket.data.socketId)!;
+            this.sockets.delete(client.id);
+            this.emit('close', client)
         });
     }
 
