@@ -213,6 +213,7 @@ export class FeiyunClient {
       this.emitter.emit('reconnect');
       this.queue.start();
       clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
     })
 
     this.ws.addEventListener('error', (event) => {
