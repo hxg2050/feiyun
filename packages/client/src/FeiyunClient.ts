@@ -164,11 +164,11 @@ export class FeiyunClient {
    * @param data
    * @returns
    */
-  async request(name: string, data: any = {}, options: { timeout?: number } = {}) {
+  async request<T = unknown>(name: string, data: any = {}, options: { timeout?: number } = {}) {
     this.send(name, data);
     const index = this.index;
     const out = options.timeout || 30 * 1000;
-    return new Promise((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
       const timeout = setTimeout(() => {
         delete this.requestCallback[index];
         reject('timeout ' + out + 'ms');
