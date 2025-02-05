@@ -28,6 +28,8 @@ export class FeiyunClient {
   private queue = new Queue({ results: [] });
   public online: boolean = false;
 
+  isReconnecting = false;
+
   public config: Required<ClientConfig> = {
     url: '',
     heart: 30 * 1000,
@@ -49,17 +51,25 @@ export class FeiyunClient {
    * 连接成功
    */
   private onOpen() {
-    clearTimeout(this.reconnectTimer);
-    this.config.heart && this.ping();
     this.online = true;
-    this.emitter.emit('connect');
+    if (this.isReconnecting) {
+      this.isReconnecting = false;
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+      this.emitter.emit('reconnect');
+    } else {
+      this.config.heart && this.ping();
+      this.emitter.emit('connect');
+    }
     this.queue.start();
   }
 
   pingTimeout?: any
 
   private ping() {
-    this.ws.send('ping')
+    if (this.online) {
+      this.ws.send('ping')
+    }
     this.pingTimeout = setTimeout(() => {
       this.ping()
     }, this.config.heart)
@@ -73,7 +83,7 @@ export class FeiyunClient {
     const [id, route, req]: [number, number | string, any] = msg
     if (typeof route === 'number') {
       // 表示为request请求
-      this.requestCallback[route](req)
+      this.requestCallback[route]?.(req)
       return
     }
     this.emitter.emit(this.anyKey, {
@@ -90,6 +100,7 @@ export class FeiyunClient {
 
   private onClose() {
     this.online = false;
+    this.queue.stop();
     clearTimeout(this.pingTimeout)
     this.emitter.emit('disconnect')
     this.autoReconnect();
@@ -102,16 +113,12 @@ export class FeiyunClient {
    * @returns 
    */
   private autoReconnect() {
-    if (this.reconnectTimer) {
+    // 正在重连中
+    if (this.isReconnecting) {
       return;
     }
-
-    // Get the waiting time for the timer.
-    const waitTime = Math.min(this.config.reconnectTime, performance.now() - this.lastConnectTime);
-    // Record the current time.
-    this.lastConnectTime = performance.now();
-    // Save last timer.
-    this.reconnectTimer = setTimeout(this.reconnect.bind(this), waitTime);
+    this.isReconnecting = true;
+    this.reconnect();
   }
 
   /**
@@ -171,7 +178,7 @@ export class FeiyunClient {
     return new Promise<T>((resolve, reject) => {
       const timeout = setTimeout(() => {
         delete this.requestCallback[index];
-        reject('timeout ' + out + 'ms');
+        reject({msg: `timeout ${out}ms`, name, data});
       }, out);
 
       this.requestCallback[index] = (msg: any) => {
@@ -207,24 +214,17 @@ export class FeiyunClient {
    * 重连
    */
   reconnect() {
-    this.ws = new WebSocket(this.config.url)
-    this.ws.addEventListener('open', () => {
-      this.online = true;
-      this.emitter.emit('reconnect');
-      this.queue.start();
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
-    })
-
-    this.ws.addEventListener('error', (event) => {
-      this.onError()
-    })
-    this.ws.addEventListener('message', (event) => {
-      this.onMessage(event.data)
-    })
-    this.ws.addEventListener('close', () => {
-      this.onClose()
-    })
+    if (this.online) {
+      return;
+    }
+    this.connect();
+    
+    // Get the waiting time for the timer.
+    const waitTime = Math.min(this.config.reconnectTime, performance.now() - this.lastConnectTime);
+    // Record the current time.
+    this.lastConnectTime = performance.now();
+    // Save last timer.
+    this.reconnectTimer = setTimeout(this.reconnect.bind(this), waitTime);
   }
 
   /**
