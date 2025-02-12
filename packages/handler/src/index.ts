@@ -172,7 +172,7 @@ const runHandler = async (handler: any, ctx: Context) => {
 
     try {
         const res = await handler.method(ctx.request.data, ctx);
-        if (res) {
+        if (res !== undefined) {
             ctx.response.data = {
                 data: res
             };

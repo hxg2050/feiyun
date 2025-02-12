@@ -113,8 +113,7 @@ export class FeiyunClient {
    * @returns 
    */
   private autoReconnect() {
-    // 正在重连中
-    if (this.isReconnecting) {
+    if (this.online) {
       return;
     }
     this.isReconnecting = true;
