@@ -102,7 +102,7 @@ export class FeiyunClient {
    * @returns 
    */
   private autoReconnect() {
-    if (this.reconnectTimer) {
+    if (this.online) {
       return;
     }
 
