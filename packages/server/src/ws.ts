@@ -1,9 +1,7 @@
 import { ServerWebSocket } from "bun";
 import { IWebsocketServer } from "./IWebsocketServer";
 
-export type WebSocketData = {
-  socketId: number
-}
+export type WebSocketData = Record<string, any>
 
 export type SWS = ServerWebSocket<WebSocketData>;
 
@@ -42,13 +40,17 @@ export const createWebsocketServer = (options: { port?: number, timeout?: number
   Bun.serve<WebSocketData>({
     port: options.port,
     fetch(req, server) {
-      if (
-        server.upgrade(req, {
-          data: {
-          },
-        })
-      )
+      const params = new URL(req.url).searchParams;
+
+      const data: WebSocketData = {};
+      for (const [key, value] of params) {
+        data[key as string] = value;
+      }
+
+      if (server.upgrade(req, { data })) {
+        
         return;
+      }
 
       return new Response("Error");
     },

@@ -4,7 +4,7 @@ import { Socket } from "../socket";
 import { ServerWebSocket, Socket as TcpSocket } from "bun";
 import { createWebsocketServer } from "../ws";
 
-type SocketData = { socketId: number };
+type SocketData = Record<string, any>;
 
 export class WebSocketServer extends BaseServer<ServerWebSocket<SocketData>> implements IServer {
 
@@ -16,7 +16,9 @@ export class WebSocketServer extends BaseServer<ServerWebSocket<SocketData>> imp
         const ws = createWebsocketServer(this.config);
         ws.open((socket) => {
             const client = new Socket(this)
-            socket.data.socketId = client.id;
+            for (let p in socket.data) {
+                client.bind(p, socket.data[p])
+            }
             this.clients.set(client.id, socket)
             this.sockets.set(client.id, client);
             this.emit('connect', client)
