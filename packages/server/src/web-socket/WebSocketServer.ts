@@ -21,7 +21,10 @@ export class WebSocketServer extends BaseServer<ServerWebSocket<SocketData>> imp
             }
             this.clients.set(client.id, socket)
             this.sockets.set(client.id, client);
-            this.emit('connect', client)
+            this.emit('connect', client);
+            client.once('close', () => {
+                socket.close();
+            })
         });
 
         ws.message((socket, message) => {
