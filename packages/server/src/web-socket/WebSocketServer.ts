@@ -19,8 +19,9 @@ export class WebSocketServer extends BaseServer<ServerWebSocket<SocketData>> imp
             for (let p in socket.data) {
                 client.bind(p, socket.data[p])
             }
-            this.clients.set(client.id, socket)
+            this.clients.set(client.id, socket);
             this.sockets.set(client.id, client);
+            socket.data.socketId = client.id;
             client.once('close', () => {
                 socket.close();
             });
@@ -34,6 +35,7 @@ export class WebSocketServer extends BaseServer<ServerWebSocket<SocketData>> imp
 
         ws.close((socket) => {
             const client = this.sockets.get(socket.data.socketId)!;
+            this.clients.delete(client.id);
             this.sockets.delete(client.id);
             this.emit('close', client)
         });
