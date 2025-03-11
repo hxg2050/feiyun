@@ -1,7 +1,7 @@
 {
   "name": "feiyun",
   "repository": "https://github.com/hxg2050/feiyun.git",
-  "version": "0.3.10",
+  "version": "0.4.0",
   "private": false,
   "type": "module",
   "main": "./src/index.ts",
@@ -18,7 +18,9 @@
     "types": "./dist/index.d.ts"
   },
   "dependencies": {
-    "@feiyun/client": "workspace:^",
-    "@feiyun/server": "workspace:^"
+    "ws": "^8.14.1"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.5"
   }
 }

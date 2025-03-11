@@ -144,7 +144,7 @@ export class ResponseError extends Error {
 export const getHandlers = async (rule = '**/*.handler.ts') => {
     const handlerPaths = await glob(rule);
 
-    const handlers = [];
+    const handlers: any[] = [];
 
     for (let i = 0; i < handlerPaths.length; i++) {
         const handler = await import(handlerPaths[i]);
