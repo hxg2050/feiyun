@@ -12,6 +12,8 @@ export class Socket extends EventEmitter {
   
   id = createId();
 
+  private isClose = false;
+
   constructor(public server: IServer) {
     super();
   }
@@ -47,6 +49,9 @@ export class Socket extends EventEmitter {
    * 断开链接
    */
   close() {
+    if (this.isClose) {
+        return;
+    }
     this.emit('close', this)
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "@feiyun/client",
   "repository": "https://github.com/hxg2050/feiyun.git",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "private": false,
   "type": "module",
   "main": "./src/index.ts",
@@ -19,7 +19,8 @@
     "exports": {
       ".": {
         "import": "./dist/index.mjs",
-        "require": "./dist/index.cjs"
+        "require": "./dist/index.cjs",
+        "types": "./dist/index.d.ts"
       }
     }
   },

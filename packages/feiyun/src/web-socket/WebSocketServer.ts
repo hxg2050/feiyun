@@ -11,40 +11,62 @@ export class WebSocketServer extends BaseServer<WebSocket> implements IServer {
         super();
     }
 
+
     start(): void {
         const wss = new WSServer({
             host: this.config.host,
             port: this.config.port,
         })
         wss.on('connection', (ws, req) => {
-            const client = new Socket(this)
+            const socket = new Socket(this)
+
+            let timer: NodeJS.Timeout;
+            const ping = () => {
+                clearTimeout(timer);
+                timer = setTimeout(socket.close.bind(socket), this.config.timeout)
+            }
+
+            if (this.config.timeout) {
+                ping();
+            }
 
             const params = new URL(req.url as string, `http://${req.headers.host}/`).searchParams;
 
             const data: SocketData = {};
             for (const [key, value] of params) {
-                client.bind(key, value);
+                socket.bind(key, value);
             }
 
-            this.clients.set(client.id, ws);
-            this.sockets.set(client.id, client);
+            this.clients.set(socket.id, ws);
+            this.sockets.set(socket.id, socket);
 
-            client.once('close', () => {
+            socket.once('close', () => {
                 ws.close();
             });
 
 
             ws.on('message', (data, isBinary) => {
-                this.emit('message', client, data);
+                // 心跳
+                if (this.config.timeout) {
+                    ping();
+                }
+
+                if (data.toString() === 'ping') {
+                    return;
+                }
+
+                this.emit('message', socket, data);
             });
 
             ws.on('close', () => {
-                this.clients.delete(client.id);
-                this.sockets.delete(client.id);
-                this.emit('close', client)
+                this.clients.delete(socket.id);
+                this.sockets.delete(socket.id);
+                socket.close();
+                clearTimeout(timer);
+                this.emit('close', socket)
             });
 
-            this.emit('connect', client);
+            this.emit('connect', socket);
         })
     }
 

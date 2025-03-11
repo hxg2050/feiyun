@@ -28,7 +28,7 @@ export class Context {
 
 export type Middleware = KoaMiddleware<Context>
 
-export class Applaction {
+export class Application {
 	public middleware: Middleware[] = []
 
 	public config: ApplicationConfig = {
