@@ -1,7 +1,9 @@
-import type { Socket } from './socket'
-import { compose, type Middleware as KoaMiddleware } from './compose'
+import { compose, Middleware as KoaMiddleware } from './compose'
 import { Server } from './server'
 import { IServer } from './IServer'
+import { Socket } from './socket'
+
+export { Socket } from './socket'
 
 export interface ApplicationConfig {
 	host: string
