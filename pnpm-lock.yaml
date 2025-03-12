@@ -61,6 +61,9 @@ importers:
 
   packages/feiyun:
     dependencies:
+      eventemitter3:
+        specifier: ^5.0.1
+        version: 5.0.1
       ws:
         specifier: ^8.14.1
         version: 8.14.1
