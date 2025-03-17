@@ -93,9 +93,9 @@ export class FeiyunClient {
     this.emitter.emit(route, req)
   }
 
-  private onError() {
-    this.emitter.emit('error');
-    this.autoReconnect();
+  private onError(error) {
+    this.emitter.emit('error', error);
+    // this.autoReconnect();
   }
 
   private onClose() {
@@ -113,7 +113,7 @@ export class FeiyunClient {
    * @returns 
    */
   private autoReconnect() {
-    if (this.online) {
+    if (this.online || this.isReconnecting) {
       return;
     }
     this.isReconnecting = true;
@@ -199,7 +199,7 @@ export class FeiyunClient {
       this.onOpen()
     })
     this.ws.addEventListener('error', (event) => {
-      this.onError()
+      this.onError(event)
     })
     this.ws.addEventListener('message', (event) => {
       this.onMessage(event.data)
