@@ -98,11 +98,15 @@ export class FeiyunClient {
     // this.autoReconnect();
   }
 
-  private onClose() {
+  private onClose(event: CloseEvent) {
     this.online = false;
     this.queue.stop();
     clearTimeout(this.pingTimeout)
     this.emitter.emit('disconnect')
+    if (event.code === 1000) {
+      // 服务器主动关闭
+      this.canClose = true;
+    }
     this.autoReconnect();
   }
 
@@ -177,7 +181,7 @@ export class FeiyunClient {
     return new Promise<T>((resolve, reject) => {
       const timeout = setTimeout(() => {
         delete this.requestCallback[index];
-        reject({msg: `timeout ${out}ms`, name, data});
+        reject({ msg: `timeout ${out}ms`, name, data });
       }, out);
 
       this.requestCallback[index] = (msg: any) => {
@@ -204,8 +208,8 @@ export class FeiyunClient {
     this.ws.addEventListener('message', (event) => {
       this.onMessage(event.data)
     })
-    this.ws.addEventListener('close', () => {
-      this.onClose()
+    this.ws.addEventListener('close', (event: CloseEvent) => {
+      this.onClose(event)
     })
   }
 
@@ -217,7 +221,7 @@ export class FeiyunClient {
       return;
     }
     this.connect();
-    
+
     // Get the waiting time for the timer.
     const waitTime = Math.min(this.config.reconnectTime, performance.now() - this.lastConnectTime);
     // Record the current time.
