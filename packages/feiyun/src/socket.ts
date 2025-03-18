@@ -48,10 +48,10 @@ export class Socket extends EventEmitter {
   /**
    * 断开链接
    */
-  close() {
+  close(code: number = 1000) {
     if (this.isClose) {
         return;
     }
-    this.emit('close', this)
+    this.emit('close', code)
   }
 }

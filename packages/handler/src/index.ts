@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import { glob } from "glob";
-import path from "node:path";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
+import { pathToFileURL } from "node:url";
+import { Application, Context, Middleware } from "feiyun";
 
-import type { Context, Feiyun, FeiyunMiddleware } from '@feiyun/server'
 const PATH_METADATA = 'path';
 const METHOD_METADATA = 'method';
 const PARAM_METADATA = 'param';
@@ -147,7 +147,7 @@ export const getHandlers = async (rule = '**/*.handler.ts') => {
     const handlers: any[] = [];
 
     for (let i = 0; i < handlerPaths.length; i++) {
-        const handler = await import(handlerPaths[i]);
+        const handler = await import(pathToFileURL(handlerPaths[i]).href);
         if (handler.default) {
             handlers.push(handler.default);
         }
@@ -195,7 +195,7 @@ export type IncludeOptions = {
 
 export type HandlerOptoons = { rule: string } & IncludeOptions;
 
-export const createHandler = (app: Feiyun, options: HandlerOptoons) => {
+export const createHandler = (app: Application, options: HandlerOptoons) => {
     options = Object.assign({}, {
         docPath: 'doc'
     }, options)
@@ -208,7 +208,7 @@ export const createHandler = (app: Feiyun, options: HandlerOptoons) => {
      * @param rule 导入路径规则
      * @returns 
      */
-    const include = async (): Promise<FeiyunMiddleware> => {
+    const include = async (): Promise<Middleware> => {
         
         const handlers = await getHandlers(options.rule);
 

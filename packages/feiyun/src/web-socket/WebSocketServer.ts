@@ -40,8 +40,8 @@ export class WebSocketServer extends BaseServer<WebSocket> implements IServer {
             this.clients.set(socket.id, ws);
             this.sockets.set(socket.id, socket);
 
-            socket.once('close', () => {
-                ws.close();
+            socket.once('close', (code: number = 1000) => {
+                ws.close(code);
             });
 
 
@@ -58,10 +58,10 @@ export class WebSocketServer extends BaseServer<WebSocket> implements IServer {
                 this.emit('message', socket, data);
             });
 
-            ws.on('close', () => {
+            ws.on('close', (event) => {
                 this.clients.delete(socket.id);
                 this.sockets.delete(socket.id);
-                socket.close();
+                socket.close(event);
                 clearTimeout(timer);
                 this.emit('close', socket)
             });

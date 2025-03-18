@@ -52,6 +52,7 @@ export class FeiyunClient {
    */
   private onOpen() {
     this.online = true;
+    console.log('onOpen')
     if (this.isReconnecting) {
       this.isReconnecting = false;
       clearTimeout(this.reconnectTimer);
@@ -102,12 +103,13 @@ export class FeiyunClient {
     this.online = false;
     this.queue.stop();
     clearTimeout(this.pingTimeout)
-    this.emitter.emit('disconnect')
-    if (event.code === 1000) {
+    this.emitter.emit('disconnect', event)
+    if (event.wasClean) {
       // 服务器主动关闭
       this.canClose = true;
+    } else {
+      this.autoReconnect();
     }
-    this.autoReconnect();
   }
 
   private lastConnectTime = 0;
@@ -120,6 +122,7 @@ export class FeiyunClient {
     if (this.online || this.isReconnecting) {
       return;
     }
+    console.log('autoReconnect', this.online, this.isReconnecting);
     this.isReconnecting = true;
     this.reconnect();
   }
