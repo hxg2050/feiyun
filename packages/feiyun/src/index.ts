@@ -3,7 +3,8 @@ import { Server } from './server'
 import { IServer } from './IServer'
 import { Socket } from './socket'
 
-export { Socket } from './socket'
+export * from './socket'
+export * from './IServer'
 
 export interface ApplicationConfig {
 	host: string

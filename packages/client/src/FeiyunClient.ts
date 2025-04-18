@@ -57,10 +57,15 @@ export class FeiyunClient {
       this.isReconnecting = false;
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
+      this.emitter.emit('connect', {
+        reconnect: true
+      });
       this.emitter.emit('reconnect');
     } else {
       this.config.heart && this.ping();
-      this.emitter.emit('connect');
+      this.emitter.emit('connect', {
+        reconnect: false
+      });
     }
     this.queue.start();
   }

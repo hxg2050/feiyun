@@ -27,7 +27,7 @@ export class Socket extends EventEmitter {
     this.data[name] = value
   }
 
-  private _uid?: number
+  private _uid: number = 0
   get uid() {
     return this._uid
   }
