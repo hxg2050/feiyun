@@ -1,0 +1,20 @@
+{
+    "name": "@feiyun/room",
+    "repository": "https://github.com/hxg2050/feiyun.git",
+    "private": false,
+    "version": "0.0.1",
+    "type": "module",
+    "main": "./src/index.ts",
+    "scripts": {
+        "build": "rimraf dist && rollup -c",
+        "prepublishOnly": "pnpm build"
+    },
+    "files": [
+        "dist/"
+    ],
+    "publishConfig": {
+        "main": "./dist/index.cjs",
+        "module": "./dist/index.mjs",
+        "types": "./dist/index.d.ts"
+    }
+}
